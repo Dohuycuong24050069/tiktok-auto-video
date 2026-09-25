@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Auto Video Tool - Studio Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            tiktokRed: '#FE2C55',
+            tiktokCyan: '#25F4EE',
+            brandDark: '#0B0D13',
+            brandCard: '#131622',
+            brandBorder: '#1E2337',
+            brandAccent: '#4D6FFF'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0B0D13;
+      color: #E2E8F0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .glass-panel {
+      background: rgba(19, 22, 34, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-panel-glow {
+      background: rgba(19, 22, 34, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(77, 111, 255, 0.25);
+      box-shadow: 0 0 35px -5px rgba(77, 111, 255, 0.15);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0B0D13;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #232942;
+      border-radius: 9999px;
+    }
+    .phone-screen {
+      aspect-ratio: 9 / 16;
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 10px #1E2337, 0 0 0 12px #2E3654;
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 6s linear infinite;
+    }
+  </style>
+</head>
+<body class="custom-scrollbar min-h-screen">
+  <!-- Top Navigation Bar -->
+  <header class="h-16 border-b border-brandBorder/80 glass-panel sticky top-0 z-50 px-6 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-tiktokRed to-tiktokCyan flex items-center justify-center shadow-lg shadow-tiktokRed/20">
+        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.47 6.3 6.3 0 0 0 1.95-4.47V8.4a8.27 8.27 0 0 0 4.82 1.54V6.69h-.18Z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-extrabold tracking-tight text-white text-lg">TikTok Auto Video Tool</h1>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-tiktokRed/20 text-tiktokRed border border-tiktokRed/30">MVP 720x1280</span>
+        </div>
+        <p class="text-xs text-slate-400">Automated 30s TikTok Video Generator & Official Publisher</p>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        API Engine Ready (Local Demo Mode)
+      </div>
+      <button onclick="switchTab('studio')" id="tab-studio-btn" class="px-4 py-2 rounded-lg text-xs font-semibold bg-brandAccent text-white transition-all shadow-lg shadow-brandAccent/25">
+        Studio Editor
+      </button>
+      <button onclick="switchTab('projects')" id="tab-projects-btn" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+        Saved Projects (<span id="project-count">3</span>)
+      </button>
+      <button onclick="openTikTokAuthModal()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/15 text-white flex items-center gap-2 border border-white/10 transition-all">
+        <span class="w-2 h-2 rounded-full bg-tiktokCyan"></span>
+        <span>@creator_official</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    
+    <!-- STUDIO VIEW -->
+    <div id="view-studio" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Controls (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- STEP 1: Video Source Input -->
+        <section class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-tiktokRed/20 text-tiktokRed font-bold text-xs flex items-center justify-center border border-tiktokRed/30">1</span>
+              <h2 class="font-bold text-white text-base">Video Nguồn & Cắt Đoạn 30s</h2>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">Audio tự động giữ nguyên</span>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">YouTube / Source URL (Video có quyền sử dụng)</label>
+              <div class="relative">
+                <input id="source-url" type="url" value="https://www.youtube.com/watch?v=sample-nature-clip" 
+                  class="w-full bg-[#0A0C14] border border-brandBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brandAccent transition-all pr-24 font-mono"
+                  placeholder="https://youtube.com/watch?v=...">
+                <button onclick="loadSampleVideo()" class="absolute right-2 top-2 px-3 py-1.5 bg-brandCard hover:bg-brandBorder rounded-lg text-xs font-medium text-slate-300 transition-all border border-brandBorder">
+                  Mẫu Thử
+                </button>
+              </div>
+            </div>
+
+            <!-- Trimmer Slider -->
+            <div class="bg-[#0E111C] p-4 rounded-xl border border-brandBorder space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-400">Vị trí bắt đầu: <span id="trim-start-label" class="text-white font-mono font-bold">00:00</span></span>
+                <span class="text-tiktokCyan font-mono font-bold">Độ dài: ~30 giây (720x1280)</span>
+                <span class="text-slate-400">Kết thúc: <span id="trim-end-label" class="text-white font-mono font-bold">00:30</span></span>
+              </div>
+              <input id="trim-slider" type="range" min="0" max="120" value="0" step="1" 
+                class="w-full accent-tiktokRed h-2 bg-slate-800 rounded-lg cursor-pointer"
+                oninput="updateTrimmer(this.value)">
+              
+              <!-- Waveform Mockup -->
+              <div class="h-8 flex items-center justify-between gap-1 opacity-70 px-1">
+                <div class="w-1 bg-brandAccent/60 h-3 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/60 h-5 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/80 h-7 rounded-full"></div>
+                <div class="w-1 bg-tiktokCyan h-8 rounded-full"></div>
+                <div class="w-1 bg-tiktokCyan h-6 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/70 h-4 rounded-full"></div>
+                <div class="w-1 bg-tiktokRed h-7 rounded-full"></div>
+                <div class="w-1 bg-tiktokRed h-8 rounded-full"></div>
+                <div class="w-1 bg-tiktokRed h-5 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/60 h-4 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/80 h-7 rounded-full"></div>
+                <div class="w-1 bg-tiktokCyan h-8 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/60 h-3 rounded-full"></div>
+                <div class="w-1 bg-tiktokRed h-6 rounded-full"></div>
+                <div class="w-1 bg-tiktokRed h-8 rounded-full"></div>
+                <div class="w-1 bg-tiktokCyan h-5 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/70 h-7 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/50 h-4 rounded-full"></div>
+                <div class="w-1 bg-brandAccent/80 h-6 rounded-full"></div>
+                <div class="w-1 bg-tiktokRed h-8 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2: Insert 2 Images Configuration -->
+        <section class="glass-panel rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-tiktokCyan/20 text-tiktokCyan font-bold text-xs flex items-center justify-center border border-tiktokCyan/30">2</span>
+              <h2 class="font-bold text-white text-base">Chèn 2 Hình Ảnh (Overlay Intro & Outro)</h2>
+            </div>
+            <span class="text-xs text-slate-400">Tự động ghép vào 720x1280</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Image 1 Card -->
+            <div class="bg-[#0E111C] p-4 rounded-xl border border-brandBorder space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200">Ảnh 1: Đầu Video (0 - 3s)</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brandAccent/20 text-brandAccent font-mono">Intro Hook</span>
+              </div>
+              
+              <div class="flex items-center gap-3">
+                <div id="img1-thumb" class="w-16 h-16 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                  <span class="text-2xl">🔥</span>
+                </div>
+                <div class="flex-1 space-y-1">
+                  <input type="file" id="file-img1" accept="image/*" class="hidden" onchange="previewUploadedImage(event, 1)">
+                  <button type="button" onclick="document.getElementById('file-img1').click()" class="w-full py-1.5 px-3 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-medium text-white transition-all text-center block">
+                    Đổi Ảnh 1
+                  </button>
+                  <p class="text-[10px] text-slate-400">Tải ảnh bất kỳ từ máy tính</p>
+                </div>
+              </div>
+
+              <!-- Overlay Settings -->
+              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-brandBorder/60 text-xs">
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Vị Trí</label>
+                  <select id="pos-img1" onchange="updateCanvasPreview()" class="w-full bg-[#131726] border border-brandBorder rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none">
+                    <option value="top">Phía Trên (Top)</option>
+                    <option value="center" selected>Chính Giữa (Center)</option>
+                    <option value="bottom">Phía Dưới (Bottom)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Kích Thước</label>
+                  <input id="size-img1" type="range" min="15" max="60" value="30" oninput="updateCanvasPreview()" class="w-full accent-tiktokCyan h-1 bg-slate-800 rounded">
+                </div>
+              </div>
+            </div>
+
+            <!-- Image 2 Card -->
+            <div class="bg-[#0E111C] p-4 rounded-xl border border-brandBorder space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200">Ảnh 2: Cuối Video (27 - 30s)</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-tiktokRed/20 text-tiktokRed font-mono">CTA / Outro</span>
+              </div>
+              
+              <div class="flex items-center gap-3">
+                <div id="img2-thumb" class="w-16 h-16 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                  <span class="text-2xl">⚡</span>
+                </div>
+                <div class="flex-1 space-y-1">
+                  <input type="file" id="file-img2" accept="image/*" class="hidden" onchange="previewUploadedImage(event, 2)">
+                  <button type="button" onclick="document.getElementById('file-img2').click()" class="w-full py-1.5 px-3 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-medium text-white transition-all text-center block">
+                    Đổi Ảnh 2
+                  </button>
+                  <p class="text-[10px] text-slate-400">Kêu gọi follow, like, xem thêm</p>
+                </div>
+              </div>
+
+              <!-- Overlay Settings -->
+              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-brandBorder/60 text-xs">
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Vị Trí</label>
+                  <select id="pos-img2" onchange="updateCanvasPreview()" class="w-full bg-[#131726] border border-brandBorder rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none">
+                    <option value="top">Phía Trên (Top)</option>
+                    <option value="center">Chính Giữa (Center)</option>
+                    <option value="bottom" selected>Phía Dưới (Bottom)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-1">Kích Thước</label>
+                  <input id="size-img2" type="range" min="15" max="60" value="35" oninput="updateCanvasPreview()" class="w-full accent-tiktokRed h-1 bg-slate-800 rounded">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3: Caption & Hashtag -->
+        <section class="glass-panel rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 font-bold text-xs flex items-center justify-center border border-purple-500/30">3</span>
+              <h2 class="font-bold text-white text-base">Caption & Hashtag Đăng TikTok</h2>
+            </div>
+            <span class="text-xs text-slate-400">Tối ưu đề xuất For You</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Tiêu đề / Caption Video</label>
+            <input id="video-caption" type="text" value="Khoảnh khắc cực đỉnh không thể bỏ lỡ! Xem ngay đến cuối 🔥" 
+              class="w-full bg-[#0A0C14] border border-brandBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brandAccent transition-all"
+              oninput="document.getElementById('tiktok-caption-preview').innerText = this.value">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-xs font-medium text-slate-300">Hashtags</label>
+              <div class="flex gap-1.5">
+                <button type="button" onclick="addTag('#fyp')" class="text-[10px] px-2 py-0.5 rounded bg-brandBorder hover:bg-slate-700 text-slate-300 transition-all">+ #fyp</button>
+                <button type="button" onclick="addTag('#viral')" class="text-[10px] px-2 py-0.5 rounded bg-brandBorder hover:bg-slate-700 text-slate-300 transition-all">+ #viral</button>
+                <button type="button" onclick="addTag('#xuhuong')" class="text-[10px] px-2 py-0.5 rounded bg-brandBorder hover:bg-slate-700 text-slate-300 transition-all">+ #xuhuong</button>
+              </div>
+            </div>
+            <input id="video-hashtags" type="text" value="#viral #trending #fyp #xuhuong2026 #tiktokvietnam" 
+              class="w-full bg-[#0A0C14] border border-brandBorder rounded-xl px-4 py-2.5 text-xs text-tiktokCyan font-mono focus:outline-none focus:border-brandAccent transition-all"
+              oninput="document.getElementById('tiktok-hashtags-preview').innerText = this.value">
+          </div>
+        </section>
+
+        <!-- ACTION BUTTONS: Render & TikTok Direct Publish -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button onclick="startVideoRenderPipeline()" id="render-btn" class="flex-1 py-4 px-6 rounded-xl bg-gradient-to-r from-tiktokRed via-[#FF4D6D] to-[#FE2C55] hover:opacity-95 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-tiktokRed/30 transition-all active:scale-[0.99]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Xuất MP4 (720x1280 • FFmpeg)</span>
+          </button>
+
+          <button onclick="openTikTokPublishModal()" class="py-4 px-6 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all">
+            <svg class="w-5 h-5 text-tiktokCyan" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.47 6.3 6.3 0 0 0 1.95-4.47V8.4a8.27 8.27 0 0 0 4.82 1.54V6.69h-.18Z"/>
+            </svg>
+            <span>Đăng TikTok (Official API)</span>
+          </button>
+        </div>
+
+        <!-- Render Progress Alert -->
+        <div id="render-progress-box" class="hidden glass-panel-glow p-5 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 font-bold text-white">
+              <span class="w-2 h-2 rounded-full bg-tiktokCyan animate-ping"></span>
+              <span id="render-step-text">Đang tải video nguồn...</span>
+            </div>
+            <span id="render-percentage" class="font-mono text-tiktokCyan font-bold">15%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="render-bar" class="bg-gradient-to-r from-tiktokRed via-brandAccent to-tiktokCyan h-full w-[15%] transition-all duration-300"></div>
+          </div>
+          <p id="render-detail-log" class="text-[11px] text-slate-400 font-mono">ffmpeg -ss 00:00:00 -i input.mp4 -t 30 -vf "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280" output.mp4</p>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Real-time 9:16 TikTok Simulator (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col items-center">
+        
+        <div class="w-full max-w-[340px] sticky top-24">
+          <div class="flex items-center justify-between mb-3 px-2">
+            <span class="text-xs font-bold text-slate-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-tiktokRed"></span>
+              Live TikTok Player 9:16
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">720 × 1280 PX</span>
+          </div>
+
+          <!-- Phone Mockup Container -->
+          <div class="phone-screen bg-black relative select-none">
+            
+            <!-- Video / Canvas Simulation -->
+            <canvas id="previewCanvas" width="360" height="640" class="w-full h-full object-cover"></canvas>
+
+            <!-- TikTok Top Tab -->
+            <div class="absolute top-4 left-0 right-0 flex items-center justify-center gap-4 text-xs font-bold text-white/70 drop-shadow">
+              <span>Đang Follow</span>
+              <span class="text-white border-b-2 border-white pb-0.5">Dành cho bạn</span>
+            </div>
+
+            <!-- TikTok Right Sidebar Icons -->
+            <div class="absolute right-3 bottom-20 flex flex-col items-center gap-4 text-white drop-shadow-md z-20">
+              <!-- Creator Avatar -->
+              <div class="relative">
+                <div class="w-10 h-10 rounded-full border border-white bg-gradient-to-tr from-pink-500 to-yellow-400 p-0.5">
+                  <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs">TT</div>
+                </div>
+                <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-tiktokRed flex items-center justify-center text-[10px] font-bold">+</div>
+              </div>
+
+              <!-- Likes -->
+              <div class="flex flex-col items-center">
+                <button class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-tiktokRed active:scale-125 transition-transform">
+                  <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </button>
+                <span class="text-[10px] font-bold">128.4K</span>
+              </div>
+
+              <!-- Comments -->
+              <div class="flex flex-col items-center">
+                <button class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white">
+                  <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+                </button>
+                <span class="text-[10px] font-bold">2,490</span>
+              </div>
+
+              <!-- Share -->
+              <div class="flex flex-col items-center">
+                <button class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white">
+                  <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+                </button>
+                <span class="text-[10px] font-bold">Share</span>
+              </div>
+
+              <!-- Spinning Audio Disc -->
+              <div class="w-9 h-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center animate-spin-slow">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-tr from-tiktokRed to-tiktokCyan"></div>
+              </div>
+            </div>
+
+            <!-- TikTok Bottom Details (Caption, Hashtags, Audio) -->
+            <div class="absolute bottom-4 left-3 right-16 text-white drop-shadow-md z-20 space-y-1.5">
+              <div class="font-bold text-xs flex items-center gap-1.5">
+                <span>@creator_official</span>
+                <span class="w-3 h-3 rounded-full bg-tiktokCyan flex items-center justify-center text-[8px] text-black font-extrabold">✓</span>
+              </div>
+              <p id="tiktok-caption-preview" class="text-xs text-white/95 line-clamp-2 leading-relaxed">
+                Khoảnh khắc cực đỉnh không thể bỏ lỡ! Xem ngay đến cuối 🔥
+              </p>
+              <p id="tiktok-hashtags-preview" class="text-[11px] text-tiktokCyan font-mono">
+                #viral #trending #fyp #xuhuong2026 #tiktokvietnam
+              </p>
+              <div class="flex items-center gap-2 text-[10px] text-white/80">
+                <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                <span class="truncate">Âm thanh gốc từ video nguồn (High Quality)</span>
+              </div>
+            </div>
+
+            <!-- Play / Pause Overlay Controller -->
+            <button onclick="toggleVideoPlayback()" class="absolute inset-0 z-10 flex items-center justify-center bg-black/20 hover:bg-black/10 transition-colors">
+              <div id="play-indicator" class="w-14 h-14 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white border border-white/20 opacity-0 transition-opacity">
+                <svg class="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </button>
+          </div>
+
+          <!-- Video Controls Under Phone -->
+          <div class="mt-4 flex items-center justify-between px-2 text-xs text-slate-400">
+            <button onclick="toggleVideoPlayback()" id="btn-toggle-play" class="flex items-center gap-1.5 hover:text-white transition-colors">
+              <span id="play-icon-label">⏸ Tạm dừng</span>
+            </button>
+            <span id="video-timer" class="font-mono text-tiktokCyan">00:12 / 00:30</span>
+            <button onclick="resetPreviewTimer()" class="hover:text-white transition-colors">
+              ↺ Phát lại
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- PROJECTS VIEW (Saved Projects) -->
+    <div id="view-projects" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="text-2xl font-extrabold text-white">📁 Saved Projects (Dự Án Đã Lưu)</h2>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tiktokCyan/20 text-tiktokCyan border border-tiktokCyan/30">3 Videos Ready</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Các video 720x1280 MP4 chuẩn TikTok 9:16 được xử lý bằng FFmpeg và lưu trữ cục bộ</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="switchTab('studio')" class="px-4 py-2.5 bg-gradient-to-r from-tiktokRed to-pink-600 hover:opacity-90 rounded-xl text-xs font-bold text-white shadow-lg shadow-tiktokRed/20 flex items-center gap-2 transition-all">
+            <span>+ Tạo Video Mới</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Filter Pills -->
+      <div class="flex items-center gap-2 text-xs font-medium pb-2 border-b border-brandBorder/60">
+        <button class="px-3 py-1.5 rounded-lg bg-brandAccent text-white font-semibold">Tất cả (3)</button>
+        <button class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">Đã đăng TikTok (2)</button>
+        <button class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">Bản nháp chờ đăng (1)</button>
+      </div>
+
+      <!-- Project Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Card 1 -->
+        <div class="glass-panel rounded-2xl overflow-hidden border border-brandBorder group hover:border-tiktokCyan/50 transition-all shadow-xl hover:shadow-tiktokCyan/10">
+          <div class="aspect-[9/16] bg-slate-900 relative max-h-80 overflow-hidden flex items-center justify-center cursor-pointer" onclick="openVideoPlayerModal('Project 001 - Hoàng Hôn Phú Quốc', 'Khoảnh khắc hoàng hôn cực đẹp tại Phú Quốc 🔥 #fyp #viral #xuhuong', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=720&auto=format&fit=crop', 'Đã xuất bản TikTok')">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30 group-hover:bg-black/10 transition-colors"></div>
+            
+            <!-- Floating Play Button -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-14 h-14 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-tiktokRed transition-all shadow-lg">
+                <svg class="w-6 h-6 fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+
+            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-mono text-tiktokCyan border border-white/10">00:30 • 720×1280</span>
+            <span class="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">TikTok Active ✓</span>
+            
+            <div class="absolute bottom-3 left-3 right-3 text-left">
+              <div class="text-xs font-bold text-white truncate">Project_20260925_001.mp4</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">14.8 MB • Audio 320kbps • 2 Ảnh chèn</div>
+            </div>
+          </div>
+          
+          <div class="p-4 space-y-3">
+            <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed">Khoảnh khắc hoàng hôn cực đẹp tại Phú Quốc không thể bỏ lỡ 🔥</p>
+            <div class="text-[11px] text-tiktokCyan font-mono truncate">#fyp #viral #dulich #phuquoc #sunset</div>
+            <div class="flex items-center justify-between pt-3 border-t border-brandBorder text-xs">
+              <button onclick="openVideoPlayerModal('Project 001 - Hoàng Hôn Phú Quốc', 'Khoảnh khắc hoàng hôn cực đẹp tại Phú Quốc 🔥 #fyp #viral #xuhuong', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=720&auto=format&fit=crop', 'Đã xuất bản TikTok')" class="text-tiktokCyan hover:underline font-semibold flex items-center gap-1">
+                <span>▶ Xem Video</span>
+              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="alert('Đang tải file MP4: Project_20260925_001.mp4 (14.8MB)...')" class="px-2.5 py-1 bg-white/10 hover:bg-white/15 rounded-lg text-slate-200 text-xs font-medium transition-all">
+                  Tải MP4
+                </button>
+                <button onclick="openTikTokPublishModal()" class="px-2.5 py-1 bg-tiktokRed/20 hover:bg-tiktokRed/30 text-tiktokRed rounded-lg text-xs font-bold transition-all border border-tiktokRed/30">
+                  TikTok
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-panel rounded-2xl overflow-hidden border border-brandBorder group hover:border-tiktokRed/50 transition-all shadow-xl hover:shadow-tiktokRed/10">
+          <div class="aspect-[9/16] bg-slate-900 relative max-h-80 overflow-hidden flex items-center justify-center cursor-pointer" onclick="openVideoPlayerModal('Project 002 - Top 5 Mẹo Công Nghệ', 'Top 5 mẹo công nghệ bạn chưa biết ⚡ #techtok #congnghe #tips', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&auto=format&fit=crop', 'Chưa đăng TikTok')">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30 group-hover:bg-black/10 transition-colors"></div>
+            
+            <!-- Floating Play Button -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-14 h-14 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-tiktokRed transition-all shadow-lg">
+                <svg class="w-6 h-6 fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+
+            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-mono text-tiktokCyan border border-white/10">00:30 • 720×1280</span>
+            <span class="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">Bản Nháp (Chờ đăng)</span>
+            
+            <div class="absolute bottom-3 left-3 right-3 text-left">
+              <div class="text-xs font-bold text-white truncate">Project_20260925_002.mp4</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">16.2 MB • Audio gốc • 2 Ảnh chèn</div>
+            </div>
+          </div>
+          
+          <div class="p-4 space-y-3">
+            <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed">Top 5 mẹo công nghệ bạn chưa biết có thể giúp bạn tiết kiệm thời gian ⚡</p>
+            <div class="text-[11px] text-tiktokCyan font-mono truncate">#techtok #tips #congnghe #hacks</div>
+            <div class="flex items-center justify-between pt-3 border-t border-brandBorder text-xs">
+              <button onclick="openVideoPlayerModal('Project 002 - Top 5 Mẹo Công Nghệ', 'Top 5 mẹo công nghệ bạn chưa biết ⚡ #techtok #congnghe #tips', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&auto=format&fit=crop', 'Chưa đăng TikTok')" class="text-tiktokCyan hover:underline font-semibold flex items-center gap-1">
+                <span>▶ Xem Video</span>
+              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="alert('Đang tải file MP4: Project_20260925_002.mp4 (16.2MB)...')" class="px-2.5 py-1 bg-white/10 hover:bg-white/15 rounded-lg text-slate-200 text-xs font-medium transition-all">
+                  Tải MP4
+                </button>
+                <button onclick="openTikTokPublishModal()" class="px-2.5 py-1 bg-tiktokRed hover:bg-tiktokRed/90 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-tiktokRed/20">
+                  Đăng Ngay
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-panel rounded-2xl overflow-hidden border border-brandBorder group hover:border-brandAccent/50 transition-all shadow-xl hover:shadow-brandAccent/10">
+          <div class="aspect-[9/16] bg-slate-900 relative max-h-80 overflow-hidden flex items-center justify-center cursor-pointer" onclick="openVideoPlayerModal('Project 003 - Núi Tuyết Hùng Vĩ 4K', 'Cảnh núi tuyết hùng vĩ quay từ Drone ❄️ #drone #nature #travel', 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=720&auto=format&fit=crop', 'Đã xuất bản TikTok')">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30 group-hover:bg-black/10 transition-colors"></div>
+            
+            <!-- Floating Play Button -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-14 h-14 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-tiktokRed transition-all shadow-lg">
+                <svg class="w-6 h-6 fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+
+            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-mono text-tiktokCyan border border-white/10">00:30 • 720×1280</span>
+            <span class="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">TikTok Active ✓</span>
+            
+            <div class="absolute bottom-3 left-3 right-3 text-left">
+              <div class="text-xs font-bold text-white truncate">Project_20260925_003.mp4</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">18.5 MB • Audio 320kbps • 2 Ảnh chèn</div>
+            </div>
+          </div>
+          
+          <div class="p-4 space-y-3">
+            <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed">Cảnh núi tuyết hùng vĩ quay từ Drone 4K đỉnh cao thiên nhiên ❄️</p>
+            <div class="text-[11px] text-tiktokCyan font-mono truncate">#travel #drone #nature #winter #foryou</div>
+            <div class="flex items-center justify-between pt-3 border-t border-brandBorder text-xs">
+              <button onclick="openVideoPlayerModal('Project 003 - Núi Tuyết Hùng Vĩ 4K', 'Cảnh núi tuyết hùng vĩ quay từ Drone ❄️ #drone #nature #travel', 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=720&auto=format&fit=crop', 'Đã xuất bản TikTok')" class="text-tiktokCyan hover:underline font-semibold flex items-center gap-1">
+                <span>▶ Xem Video</span>
+              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="alert('Đang tải file MP4: Project_20260925_003.mp4 (18.5MB)...')" class="px-2.5 py-1 bg-white/10 hover:bg-white/15 rounded-lg text-slate-200 text-xs font-medium transition-all">
+                  Tải MP4
+                </button>
+                <button onclick="openTikTokPublishModal()" class="px-2.5 py-1 bg-tiktokRed/20 hover:bg-tiktokRed/30 text-tiktokRed rounded-lg text-xs font-bold transition-all border border-tiktokRed/30">
+                  TikTok
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- POPUP MODAL: Interactive Full Video Player -->
+    <div id="modal-video-player" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+      <div class="bg-[#131726] border border-brandBorder rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl relative">
+        <button onclick="closeVideoPlayerModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">✕</button>
+        
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-3 rounded-full bg-tiktokRed animate-ping"></div>
+          <div>
+            <h3 id="modal-player-title" class="font-extrabold text-white text-lg">Project 001 - Video Preview</h3>
+            <p id="modal-player-status" class="text-xs text-emerald-400 font-medium">Đã xuất bản TikTok ✓</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+          <!-- 9:16 Video Player Card -->
+          <div class="aspect-[9/16] bg-black rounded-2xl overflow-hidden relative border border-brandBorder shadow-xl max-h-96 mx-auto w-full">
+            <img id="modal-player-img" src="" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+            <div class="absolute bottom-4 left-3 right-3 text-white text-xs font-bold drop-shadow">
+              <p id="modal-player-caption" class="line-clamp-2 text-[11px]"></p>
+            </div>
+            <!-- Play/Pause Button in Player -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center text-tiktokCyan">
+                ▶
+              </div>
+            </div>
+          </div>
+
+          <!-- Video Specs & Controls -->
+          <div class="space-y-4 text-xs">
+            <div class="bg-[#0B0D13] p-4 rounded-xl border border-brandBorder space-y-2">
+              <div class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Thông số kỹ thuật</div>
+              <div class="flex justify-between py-1 border-b border-brandBorder/60">
+                <span class="text-slate-400">Độ phân giải:</span>
+                <span class="font-mono text-white font-bold">720 × 1280 (9:16 Dọc)</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-brandBorder/60">
+                <span class="text-slate-400">Thời lượng:</span>
+                <span class="font-mono text-tiktokCyan font-bold">00:30 (30 Giây)</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-brandBorder/60">
+                <span class="text-slate-400">Âm thanh:</span>
+                <span class="text-white">Audio gốc từ nguồn</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-brandBorder/60">
+                <span class="text-slate-400">Hình ảnh chèn:</span>
+                <span class="text-white">2 ảnh (Intro 0-3s & Outro 27-30s)</span>
+              </div>
+              <div class="flex justify-between py-1">
+                <span class="text-slate-400">Định dạng file:</span>
+                <span class="font-mono text-emerald-400">MP4 (H.264 / AAC)</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2 pt-2">
+              <button onclick="alert('Đang tải video MP4 720x1280 chất lượng cao về máy...')" class="w-full py-3 rounded-xl bg-brandAccent hover:bg-brandAccent/90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-brandAccent/25 transition-all">
+                ⬇ Tải Video MP4 Về Máy
+              </button>
+              <button onclick="closeVideoPlayerModal(); openTikTokPublishModal();" class="w-full py-3 rounded-xl bg-gradient-to-r from-tiktokRed to-pink-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-tiktokRed/20 transition-all">
+                🚀 Đăng Lên TikTok (Official API)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: TikTok Official OAuth / Publish -->
+  <div id="modal-tiktok" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#131726] border border-brandBorder rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-brandBorder pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-tiktokRed flex items-center justify-center text-white">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.47 6.3 6.3 0 0 0 1.95-4.47V8.4a8.27 8.27 0 0 0 4.82 1.54V6.69h-.18Z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Đăng Video Lên TikTok</h3>
+            <p class="text-[11px] text-slate-400">TikTok Content Posting API (Official OAuth 2.0)</p>
+          </div>
+        </div>
+        <button onclick="closeTikTokPublishModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="p-3 rounded-xl bg-[#0B0D13] border border-brandBorder flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs text-tiktokCyan">@</div>
+            <div>
+              <div class="text-xs font-bold text-white">Kênh liên kết: @creator_official</div>
+              <div class="text-[10px] text-emerald-400">Token hợp lệ • TikTok Creator Studio</div>
+            </div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">Active</span>
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-300 mb-1.5 font-medium">Chế độ hiển thị video</label>
+          <select id="tiktok-privacy" class="w-full bg-[#0B0D13] border border-brandBorder rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+            <option value="PUBLIC_TO_EVERYONE">Công khai (Public to Everyone)</option>
+            <option value="MUTUAL_FOLLOW_FRIENDS">Chỉ bạn bè (Friends Only)</option>
+            <option value="SELF_ONLY">Riêng tư (Chỉ mình tôi - Nháp kiểm tra)</option>
+          </select>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+            <input type="checkbox" checked class="accent-tiktokRed rounded">
+            <span>Cho phép người khác Duet</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+            <input type="checkbox" checked class="accent-tiktokRed rounded">
+            <span>Cho phép người khác Stitch</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+            <input type="checkbox" checked class="accent-tiktokRed rounded">
+            <span>Cho phép bình luận (Comments)</span>
+          </label>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 leading-relaxed">
+          Tuân thủ chính sách TikTok: Hệ thống sử dụng <strong>OAuth 2.0 PKCE</strong> chính thức được TikTok phê duyệt. Tuyệt đối không lưu mật khẩu hay cookie người dùng.
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeTikTokPublishModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300">
+          Hủy
+        </button>
+        <button onclick="confirmTikTokPublish()" id="confirm-publish-btn" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-tiktokRed to-tiktokCyan text-xs font-bold text-white shadow-lg shadow-tiktokRed/20">
+          Xác Nhận Đăng Ngay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    let isPlaying = true;
+    let currentSeconds = 12;
+    let maxDuration = 30;
+    let animationFrameId = null;
+    let image1 = { emoji: '🔥', pos: 'center', size: 30 };
+    let image2 = { emoji: '⚡', pos: 'bottom', size: 35 };
+
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const stars = [];
+    for (let i = 0; i < 45; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2.5 + 1,
+        speed: Math.random() * 1.5 + 0.5,
+        color: ['#FE2C55', '#25F4EE', '#4D6FFF', '#FFFFFF'][Math.floor(Math.random() * 4)]
+      });
+    }
+
+    function renderSimulatorFrame() {
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, '#0a0d18');
+      grad.addColorStop(0.4, '#171b30');
+      grad.addColorStop(0.7, '#241026');
+      grad.addColorStop(1, '#0c1626');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = 'rgba(77, 111, 255, 0.08)';
+      for (let i = 0; i < 6; i++) {
+        const h = Math.sin((currentSeconds * 3) + i) * 60 + 120;
+        ctx.fillRect(i * 60, canvas.height - h - 140, 50, h);
+      }
+
+      stars.forEach(star => {
+        if (isPlaying) {
+          star.y -= star.speed;
+          if (star.y < 0) {
+            star.y = canvas.height;
+            star.x = Math.random() * canvas.width;
+          }
+        }
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = star.color;
+        ctx.shadowColor = star.color;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2 - 20, 90, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(37, 244, 238, 0.3)';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2 - 20, 80 + Math.sin(currentSeconds * 4) * 5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(254, 44, 85, 0.15)';
+      ctx.fill();
+      ctx.restore();
+
+      if (currentSeconds <= 5 || currentSeconds % 6 < 3) {
+        drawOverlay(1, image1);
+      }
+
+      if (currentSeconds >= 25 || (currentSeconds % 6 >= 3)) {
+        drawOverlay(2, image2);
+      }
+
+      ctx.font = '10px "JetBrains Mono"';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.fillText('TikTok Auto Video 720x1280 (9:16)', 16, 32);
+
+      if (isPlaying) {
+        currentSeconds += 0.03;
+        if (currentSeconds > maxDuration) {
+          currentSeconds = 0;
+        }
+        updateTimerDisplay();
+      }
+
+      animationFrameId = requestAnimationFrame(renderSimulatorFrame);
+    }
+
+    function drawOverlay(id, imgData) {
+      ctx.save();
+      const pos = document.getElementById(`pos-img${id}`).value;
+      const sizeVal = parseInt(document.getElementById(`size-img${id}`).value);
+      
+      let x = canvas.width / 2;
+      let y = 140;
+      if (pos === 'center') y = canvas.height / 2 - 20;
+      if (pos === 'bottom') y = canvas.height - 180;
+
+      const cardWidth = (sizeVal / 100) * canvas.width * 1.8;
+      const cardHeight = cardWidth * 0.45;
+
+      ctx.fillStyle = 'rgba(19, 22, 34, 0.85)';
+      ctx.strokeStyle = id === 1 ? '#25F4EE' : '#FE2C55';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x - cardWidth / 2, y - cardHeight / 2, cardWidth, cardHeight, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = `${cardHeight * 0.5}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(id === 1 ? '🔥 HOT DEMO' : '⚡ FOLLOW ME', x, y);
+
+      ctx.restore();
+    }
+
+    function updateTimerDisplay() {
+      const sec = Math.floor(currentSeconds);
+      const str = `00:${sec < 10 ? '0' : ''}${sec} / 00:30`;
+      document.getElementById('video-timer').innerText = str;
+    }
+
+    function toggleVideoPlayback() {
+      isPlaying = !isPlaying;
+      document.getElementById('play-icon-label').innerText = isPlaying ? '⏸ Tạm dừng' : '▶ Tiếp tục';
+      const ind = document.getElementById('play-indicator');
+      ind.style.opacity = isPlaying ? '0' : '1';
+    }
+
+    function resetPreviewTimer() {
+      currentSeconds = 0;
+      isPlaying = true;
+      document.getElementById('play-icon-label').innerText = '⏸ Tạm dừng';
+      document.getElementById('play-indicator').style.opacity = '0';
+    }
+
+    function updateTrimmer(val) {
+      const s = parseInt(val);
+      const e = s + 30;
+      const fmt = num => {
+        const m = Math.floor(num / 60);
+        const sec = num % 60;
+        return `${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
+      };
+      document.getElementById('trim-start-label').innerText = fmt(s);
+      document.getElementById('trim-end-label').innerText = fmt(e);
+      currentSeconds = 0;
+    }
+
+    function addTag(tag) {
+      const input = document.getElementById('video-hashtags');
+      if (!input.value.includes(tag)) {
+        input.value += ' ' + tag;
+        document.getElementById('tiktok-hashtags-preview').innerText = input.value;
+      }
+    }
+
+    function updateCanvasPreview() {}
+
+    function previewUploadedImage(event, id) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const targetThumb = id === 1 ? document.getElementById('img1-thumb') : document.getElementById('img2-thumb');
+          targetThumb.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function loadSampleVideo() {
+      document.getElementById('source-url').value = 'https://www.youtube.com/watch?v=sample-nature-clip';
+      alert('Đã tải mẫu video YouTube thành công! Bạn có thể xem trên trình mô phỏng TikTok 9:16.');
+    }
+
+    function switchTab(tab) {
+      const studio = document.getElementById('view-studio');
+      const projects = document.getElementById('view-projects');
+      const btnStudio = document.getElementById('tab-studio-btn');
+      const btnProjects = document.getElementById('tab-projects-btn');
+
+      if (tab === 'studio') {
+        studio.classList.remove('hidden');
+        projects.classList.add('hidden');
+        btnStudio.className = 'px-4 py-2 rounded-lg text-xs font-semibold bg-brandAccent text-white transition-all shadow-lg shadow-brandAccent/25';
+        btnProjects.className = 'px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all';
+      } else {
+        studio.classList.add('hidden');
+        projects.classList.remove('hidden');
+        btnProjects.className = 'px-4 py-2 rounded-lg text-xs font-semibold bg-brandAccent text-white transition-all shadow-lg shadow-brandAccent/25';
+        btnStudio.className = 'px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all';
+      }
+    }
+
+    function openTikTokPublishModal() {
+      document.getElementById('modal-tiktok').classList.remove('hidden');
+    }
+    function closeTikTokPublishModal() {
+      document.getElementById('modal-tiktok').classList.add('hidden');
+    }
+    function openTikTokAuthModal() {
+      openTikTokPublishModal();
+    }
+    function confirmTikTokPublish() {
+      const btn = document.getElementById('confirm-publish-btn');
+      btn.innerText = 'Đang đẩy video qua TikTok API...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.innerText = '✓ Đã xuất bản thành công!';
+        setTimeout(() => {
+          closeTikTokPublishModal();
+          btn.innerText = 'Xác Nhận Đăng Ngay';
+          btn.disabled = false;
+          alert('Thành công! Video đã được đẩy lên tài khoản TikTok @creator_official qua Official API.');
+        }, 1000);
+      }, 1500);
+    }
+
+    function startVideoRenderPipeline() {
+      const box = document.getElementById('render-progress-box');
+      const bar = document.getElementById('render-bar');
+      const pct = document.getElementById('render-percentage');
+      const text = document.getElementById('render-step-text');
+      const log = document.getElementById('render-detail-log');
+      const btn = document.getElementById('render-btn');
+
+      box.classList.remove('hidden');
+      btn.disabled = true;
+      btn.classList.add('opacity-50');
+
+      const steps = [
+        { p: 15, t: 'Đang tải stream video YouTube nguồn...', l: 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" --output source.mp4' },
+        { p: 40, t: 'Đang cắt 30s & tách audio gốc...', l: 'ffmpeg -ss 00:00:00 -to 00:00:30 -i source.mp4 -vn -c:a aac audio.aac' },
+        { p: 70, t: 'Chuyển đổi 720x1280 (9:16) & chèn 2 ảnh overlay...', l: 'ffmpeg -i clip.mp4 -i img1.png -i img2.png -filter_complex "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[bg][1:v]overlay...[out]"' },
+        { p: 95, t: 'Mã hóa H.264 MP4 chất lượng cao cho TikTok...', l: 'ffmpeg -map "[out]" -map 1:a -c:v libx264 -pix_fmt yuv420p -b:v 4M final_output.mp4' },
+        { p: 100, t: '✓ Hoàn thành xuất video 720x1280 MP4!', l: 'File đã sẵn sàng tại storage/outputs/tiktok_20260925_render.mp4' }
+      ];
+
+      let idx = 0;
+      function nextStep() {
+        if (idx < steps.length) {
+          const s = steps[idx];
+          bar.style.width = s.p + '%';
+          pct.innerText = s.p + '%';
+          text.innerText = s.t;
+          log.innerText = s.l;
+          idx++;
+          setTimeout(nextStep, 900);
+        } else {
+          btn.disabled = false;
+          btn.classList.remove('opacity-50');
+          setTimeout(() => {
+            alert('Xuất video thành công! Bạn có thể chuyển sang tab "Saved Projects" để xem các video MP4 đã lưu.');
+          }, 300);
+        }
+      }
+      nextStep();
+    }
+
+    function checkHashRoute() {
+      if (window.location.hash === '#projects' || window.location.search.includes('tab=projects')) {
+        switchTab('projects');
+      } else {
+        switchTab('studio');
+      }
+    }
+
+    window.addEventListener('hashchange', checkHashRoute);
+    window.addEventListener('DOMContentLoaded', checkHashRoute);
+    // Also run immediately
+    checkHashRoute();
+
+    // Modal Video Player for Saved Projects
+    function openVideoPlayerModal(title, caption, imgUrl, status) {
+      document.getElementById('modal-player-title').innerText = title;
+      document.getElementById('modal-player-caption').innerText = caption;
+      document.getElementById('modal-player-img').src = imgUrl;
+      const statusEl = document.getElementById('modal-player-status');
+      statusEl.innerText = status;
+      if (status.includes('Active') || status.includes('Đã xuất bản')) {
+        statusEl.className = 'text-xs text-emerald-400 font-medium';
+      } else {
+        statusEl.className = 'text-xs text-amber-400 font-medium';
+      }
+      document.getElementById('modal-video-player').classList.remove('hidden');
+    }
+
+    function closeVideoPlayerModal() {
+      document.getElementById('modal-video-player').classList.add('hidden');
+    }
+
+    renderSimulatorFrame();
+  </script>
+</body>
+</html>
